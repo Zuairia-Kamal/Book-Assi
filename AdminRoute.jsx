@@ -1,0 +1,13 @@
+import { Navigate } from "react-router-dom";
+import useRole from "../hooks/useRole";
+
+const AdminRoute = ({ children }) => {
+  const { role, loading } = useRole();
+
+  if (loading) return <p>Checking role...</p>;
+  if (role !== "admin") return <Navigate to="/" replace />;
+
+  return children;
+};
+
+export default AdminRoute;
