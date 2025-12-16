@@ -1,0 +1,9 @@
+### Update User Role (ADMIN ONLY)
+PATCH http://localhost:3000/update-role
+Authorization: Bearer YOUR_ADMIN_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "email": "user@gmail.com",
+  "role": "seller"
+}
