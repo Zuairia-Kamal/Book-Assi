@@ -1,45 +1,40 @@
+// src/pages/PaymentSuccess.jsx
 import { useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
-const PaymentSuccess = () => {
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get("session_id");
+export default function PaymentSuccess() {
+  const [search] = useSearchParams();
+  const sessionId = search.get("session_id");
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   useEffect(() => {
-    const updateOrder = async () => {
-      if (!sessionId || !user) return;
+    if (!sessionId) {
+      toast.error("Missing payment session");
+      return;
+    }
 
+    const confirmPayment = async () => {
       try {
-        const token = await user.firebaseUser.getIdToken();
+        await axios.post("http://localhost:3000/confirm-payment", {
+          sessionId,
+        });
 
-        const res = await axios.post(
-          "http://localhost:3000/confirm-payment",
-          { sessionId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        toast.success("Payment successful! Order added.");
-        navigate("/dashboard/my-orders"); // Redirect to orders
+        toast.success("Payment successful!");
+        navigate("/dashboard/my-orders");
       } catch (err) {
         console.error(err);
-        toast.error("Payment update failed");
+        toast.error("Payment confirmation failed");
       }
     };
 
-    updateOrder();
-  }, [sessionId, user, navigate]);
+    confirmPayment();
+  }, [sessionId, navigate]);
 
-  return <div className="p-6 text-center">Processing payment... Please wait.</div>;
-};
-
-export default PaymentSuccess;
-
-
-
-
-// 4000001240000000
+  return (
+    <div className="p-6 text-center text-lg font-semibold">
+      Processing payment... Redirecting...
+    </div>
+  );
+}
